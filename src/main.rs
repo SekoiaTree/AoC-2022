@@ -1,3 +1,4 @@
+extern crate core;
 include!(concat!(env!("OUT_DIR"), "/linker.rs"));
 
 use std::time::Instant;
@@ -25,7 +26,11 @@ fn main() {
     #[cfg(not(feature = "part-two"))]{
         println!("Part 2 not completed. Skipping...");
     }
+
+    day_x::convert(Vec::new(), profiling);
+    day_x::run(Vec::new());
+    day_x::run_step2(Vec::new());
 }
 
-#[path = "code/day1.rs"]
-mod day1;
+#[path = "code/day2.rs"]
+mod day_x;
