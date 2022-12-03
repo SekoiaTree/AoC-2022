@@ -4,11 +4,11 @@ include!(concat!(env!("OUT_DIR"), "/linker.rs"));
 use std::time::Instant;
 
 fn main() {
-    let profiling = Instant::now();
     println!("Today is day #{}. Beginning program...", DAY);
 
-    let contents: Vec<&str> = INPUT.trim().lines().collect();
+    let contents = day::free_convert(INPUT.trim().lines().collect());
 
+    let profiling = Instant::now();
     let processed = day::convert(contents, profiling);
     let processed_2 = processed.clone();
 
@@ -32,5 +32,5 @@ fn main() {
     day_x::run_step2(Vec::new());
 }
 
-#[path = "code/day2.rs"]
+#[path = "code/day3.rs"]
 mod day_x;

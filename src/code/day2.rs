@@ -99,12 +99,14 @@ pub(crate) fn run_step2(data: Data) -> i32 {
     data.iter().map(|(their_move, my_move)| (their_move+my_move-1).rem_euclid(3)+1+my_move*3).sum()
 }
 
-pub(crate) fn convert(data: Vec<&str>, _profiling: Instant) -> Data {
+type ConvertData<'a> = Vec<&'a [u8]>;
+
+pub(crate) fn convert(data: ConvertData, _profiling: Instant) -> Data {
     data.iter().map(|line| {
-        let mut chars = line.chars();
-        let first = chars.next().unwrap() as i32 - 'A' as i32;
-        chars.next();
-        let second = chars.next().unwrap() as i32 - 'X' as i32;
-        (first, second)
+        (line[0] as i32-'A' as i32, line[2] as i32-'X' as i32)
     }).collect()
+}
+
+pub(crate) fn free_convert<'a>(data: Vec<&'a str>) -> ConvertData<'a> {
+    data.iter().map(|s| s.as_bytes()).collect()
 }

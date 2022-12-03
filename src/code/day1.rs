@@ -45,6 +45,12 @@ pub(crate) fn run_step2(data: Data) -> u32 {
     sum*/
 }
 
-pub(crate) fn convert(data: Vec<&str>, _profiling: Instant) -> Data {
+type ConvertData<'a> = Vec<&'a str>;
+
+pub(crate) fn convert(data: ConvertData, _profiling: Instant) -> Data {
     data.split(|x| x.is_empty()).map(|x| x.iter().map(|y| y.parse::<u32>().unwrap()).collect()).collect()
+}
+
+pub(crate) fn free_convert<'a>(data: Vec<&'a str>) -> ConvertData<'a> {
+    data
 }
