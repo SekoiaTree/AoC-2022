@@ -27,6 +27,7 @@ fn main() {
         println!("Part 2 not completed. Skipping...");
     }
 
+    day_x::free_convert(Vec::new());
     day_x::convert(Vec::new(), profiling);
     day_x::run(Vec::new());
     day_x::run_step2(Vec::new());

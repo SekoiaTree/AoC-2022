@@ -28,22 +28,28 @@ pub(crate) fn run_step2(data: Data) -> u32 {
     }).sum()
 }
 
-pub(crate) fn convert(data: Vec<&str>, _profiling: Instant) -> Data {
+type ConvertData<'a> = Vec<&'a [u8]>;
+
+pub(crate) fn convert(data: ConvertData, _profiling: Instant) -> Data {
     data.iter().map(|s| {
         let (left, right) = s.split_at(s.len() / 2);
         let mut left_set = HashSet::new();
         let mut right_set = HashSet::new();
 
-        for c in left.chars() {
-            left_set.insert(c);
+        for c in left {
+            left_set.insert(*c as char);
         }
 
-        for c in right.chars() {
-            right_set.insert(c);
+        for c in right {
+            right_set.insert(*c as char);
         }
 
         (left_set, right_set)
     }).collect()
+}
+
+pub(crate) fn free_convert<'a>(data: Vec<&'a str>) -> ConvertData<'a> {
+    data.iter().map(|s| s.as_bytes()).collect()
 }*/
 
 type Data = Vec<(u64, u64)>;
