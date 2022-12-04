@@ -1,16 +1,17 @@
-extern crate core;
-include!(concat!(env!("OUT_DIR"), "/linker.rs"));
-
 use std::time::Instant;
+use solves::day;
+use solves::INPUT;
+use solves::DAY;
 
-fn main() {
+pub fn main() {
     println!("Today is day #{}. Beginning program...", DAY);
 
     let contents = day::free_convert(INPUT.trim().lines().collect());
 
     let profiling = Instant::now();
     let processed = day::convert(contents, profiling);
-    let processed_2 = processed.clone();
+    #[cfg(feature = "part-two")]
+        let processed_2 = processed.clone();
 
     let processing_time = profiling.elapsed();
     println!("Processing data complete... Time taken: {} microseconds or {} ms. \n", processing_time.as_micros(), processing_time.as_millis());
@@ -27,11 +28,4 @@ fn main() {
         println!("Part 2 not completed. Skipping...");
     }
 
-    day_x::free_convert(Vec::new());
-    day_x::convert(Vec::new(), profiling);
-    day_x::run(Vec::new());
-    day_x::run_step2(Vec::new());
 }
-
-#[path = "code/day3.rs"]
-mod day_x;

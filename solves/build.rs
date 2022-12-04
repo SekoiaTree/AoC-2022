@@ -23,11 +23,11 @@ fn main() {
 
     let input_path = Path::new("src").join(format!("input/day{}.txt", day));
     let input = fs::read_to_string(input_path).unwrap();
-    let code = format!("mod day {{
+    let code = format!("pub mod day {{
 {}
 }}
-const DAY: u32 = {};
-const INPUT : &str = \"{}\";", day_code, day, input);
+pub const DAY: u32 = {};
+pub const INPUT : &str = \"{}\";", day_code, day, input);
     fs::write(
         &dest_path,
         code

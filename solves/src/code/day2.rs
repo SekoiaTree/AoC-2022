@@ -62,7 +62,7 @@ impl Move {
 
 type Data = Vec<(Move, String)>;
 
-pub(crate) fn run(data: Data) -> u32 {
+pub fn run(data: Data) -> u32 {
     data.iter().map(|(their_move, my_move)| -> u32 {
         let my_move = Move::parse(my_move);
         return if my_move.wins(*their_move) { 6 } else if my_move.loses(*their_move) { 0 } else { 3 } + my_move.score();
@@ -70,7 +70,7 @@ pub(crate) fn run(data: Data) -> u32 {
 }
 
 #[cfg(feature = "part-two")]
-pub(crate) fn run_step2(data: Data) -> u32 {
+pub fn run_step2(data: Data) -> u32 {
     data.iter().map(|(their_move, my_move)|
         match &**my_move {
             "X" => their_move.winner().score()+0,
@@ -80,7 +80,7 @@ pub(crate) fn run_step2(data: Data) -> u32 {
         }).sum()
 }
 
-pub(crate) fn convert(data: Vec<&str>, _profiling: Instant) -> Data {
+pub fn convert(data: Vec<&str>, _profiling: Instant) -> Data {
     data.iter().map(|line| {
         let (first, second) = line.split_once(" ").unwrap();
         let first = Move::parse(first);
@@ -90,23 +90,23 @@ pub(crate) fn convert(data: Vec<&str>, _profiling: Instant) -> Data {
 
 type Data = Vec<(i32, i32)>;
 
-pub(crate) fn run(data: Data) -> i32 {
+pub fn run(data: Data) -> i32 {
     data.iter().map(|(their_move, my_move)|  (my_move-their_move+1).rem_euclid(3)*3 + my_move + 1).sum()
 }
 
 #[cfg(feature = "part-two")]
-pub(crate) fn run_step2(data: Data) -> i32 {
+pub fn run_step2(data: Data) -> i32 {
     data.iter().map(|(their_move, my_move)| (their_move+my_move-1).rem_euclid(3)+1+my_move*3).sum()
 }
 
 type ConvertData<'a> = Vec<&'a [u8]>;
 
-pub(crate) fn convert(data: ConvertData, _profiling: Instant) -> Data {
+pub fn convert(data: ConvertData, _profiling: Instant) -> Data {
     data.iter().map(|line| {
         (line[0] as i32-'A' as i32, line[2] as i32-'X' as i32)
     }).collect()
 }
 
-pub(crate) fn free_convert<'a>(data: Vec<&'a str>) -> ConvertData<'a> {
+pub fn free_convert(data: Vec<&str>) -> ConvertData {
     data.iter().map(|s| s.as_bytes()).collect()
 }
