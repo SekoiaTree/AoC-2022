@@ -18,9 +18,42 @@ pub fn ints_in_line_sep<T>(data: &str, sep: &str) -> Vec<T>
           T::Err: Debug {
     data.split(sep).map(|x| x.parse::<T>().unwrap()).collect()
 }
+
+#[derive(Clone, Debug)]
+pub enum Tree<T, S=()> {
+    Node(Vec<Tree<T>>, S),
+    Leaf(T)
+}
+
+impl<T, S> Tree<T, S> {
+    pub fn is_node(&self) -> bool {
+        if let Tree::Leaf(_) = self {
+            false
+        } else {
+            true
+        }
+    }
+}
 /*
-pub trait SplitMap<T>
-    where T: Iterator {
-    fn split_and_map<'a, P, S>(self, split: P, map: S)
-        where P: Pattern<'a>;
+#[derive(Clone, Debug)]
+pub struct TreeIterator<T> {
+    index_stack: Vec<usize>,
+    tree: Tree<T>
+}
+
+impl<T> Iterator for TreeIterator<T> {
+    type Item = T;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        let last = *self.index_stack.last().unwrap();
+    }
+}
+
+impl<T> IntoIterator for Tree<T> {
+    type Item = T;
+    type IntoIter = TreeIterator<T>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        todo!()
+    }
 }*/

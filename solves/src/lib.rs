@@ -14,3 +14,5 @@ mod day5;
 mod day6;
 #[path = "code/day7.rs"]
 mod day7;
+#[path = "code/day8.rs"]
+mod day8;
