@@ -19,6 +19,11 @@ pub fn ints_in_line_sep<T>(data: &str, sep: &str) -> Vec<T>
     data.split(sep).map(|x| x.parse::<T>().unwrap()).collect()
 }
 
+pub fn parse_in_grid<T, F>(data: Vec<&str>, parse: F) -> Vec<Vec<T>>
+    where F: FnMut(char) -> T + Copy {
+    data.iter().map(|x| x.chars().map(parse).collect()).collect()
+}
+
 #[derive(Clone, Debug)]
 pub enum Tree<T, S=()> {
     Node(Vec<Tree<T>>, S),

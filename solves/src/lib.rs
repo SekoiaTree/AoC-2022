@@ -1,3 +1,4 @@
+extern crate core;
 include!(concat!(env!("OUT_DIR"), "/linker.rs"));
 
 #[path = "code/day1.rs"]
@@ -16,3 +17,5 @@ mod day6;
 mod day7;
 #[path = "code/day8.rs"]
 mod day8;
+#[path = "code/day9.rs"]
+mod day9;
