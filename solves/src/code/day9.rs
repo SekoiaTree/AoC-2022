@@ -56,24 +56,61 @@ fn signum_offset(x: i32, n: i32) -> i32 {
 
 pub fn run(data: Data) -> usize {
     let mut positions = HashSet::new();
-    let mut head_x: i32 = 0;
-    let mut head_y: i32 = 0;
-    let mut tail_x: i32 = 0;
-    let mut tail_y: i32 = 0;
-    positions.insert((tail_x, tail_y));
+    let mut head = (0i32, 0i32);
+    let mut tail = (0i32, 0i32);
 
+    positions.insert(tail);
     for (i, count) in data {
-        for _ in 0..count {
-            head_x += i.x();
-            head_y += i.y();
+        let prev_tail = tail;
+        head.0 += i.x() * (count as i32);
+        head.1 += i.y() * (count as i32);
 
-            if (head_x - tail_x).abs() > 1 || (head_y - tail_y).abs() > 1 {
-                tail_x += (head_x - tail_x).signum();
-                tail_y += (head_y - tail_y).signum();
+        if (head.0 - tail.0).abs() > 1 || (head.1 - tail.1).abs() > 1 {
+            let diff_x = head.0 - tail.0;
+            let diff_y = head.1 - tail.1;
+            let min_abs = if diff_x.abs() == diff_y.abs() {
+                diff_x.abs() - 1
+            } else if diff_x.abs() < diff_y.abs() {
+                diff_x.abs()
+            } else {
+                diff_y.abs()
+            };
+            tail.0 += (head.0 - tail.0).signum() * min_abs;
+            tail.1 += (head.1 - tail.1).signum() * min_abs;
+
+            if (head.0 - tail.0).abs() > 1 || (head.1 - tail.1).abs() > 1 { // One of the two is 0 now
+                tail.0 += (head.0 - tail.0) - (head.0 - tail.0).signum();
+                tail.1 += (head.1 - tail.1) - (head.1 - tail.1).signum();
             }
-            positions.insert((tail_x, tail_y));
+        }
+
+        let mut start_x = prev_tail.0;
+        let mut end_x = tail.0;
+        start_x += (end_x-start_x).signum();
+        if start_x > end_x {
+            std::mem::swap(&mut start_x, &mut end_x);
+        }
+        let range_x = start_x..=end_x;
+
+        let mut start_y = prev_tail.1;
+        let mut end_y = tail.1;
+        start_y += (end_y-start_y).signum();
+        if start_y > end_y {
+            std::mem::swap(&mut start_y, &mut end_y);
+        }
+        let range_y = start_y..=end_y;
+
+        let x_size = range_x.size_hint().0;
+        let y_size = range_y.size_hint().0;
+        let max_size = x_size.max(y_size);
+        let range_x = range_x.chain(std::iter::repeat(tail.0).take(max_size-x_size));
+        let range_y = range_y.chain(std::iter::repeat(tail.1).take(max_size-y_size));
+
+        for (x, y) in range_x.zip(range_y) {
+            positions.insert((x, y));
         }
     }
+
     positions.len()
 }
 
@@ -81,65 +118,23 @@ pub fn run(data: Data) -> usize {
 pub fn run_step2(data: Data) -> usize {
     let mut positions = HashSet::new();
     let mut rope = [(0i32, 0i32); 10];
-
     positions.insert(rope[9]);
+
     for (i, count) in data {
-        let prev_tail = rope[9];
-        rope[0].0 += i.x() * (count as i32);
-        rope[0].1 += i.y() * (count as i32);
+        for _ in 0..count {
+            rope[0].0 += i.x();
+            rope[0].1 += i.y();
 
-        for j in 1..10 {
-            if (rope[j - 1].0 - rope[j].0).abs() > 1 || (rope[j - 1].1 - rope[j].1).abs() > 1 {
-                let diff_x = rope[j - 1].0 - rope[j].0;
-                let diff_y = rope[j - 1].1 - rope[j].1;
-                let min_abs = if diff_x.abs() == diff_y.abs() {
-                    diff_x.abs()-1
-                } else if diff_x.abs() < diff_y.abs() {
-                    diff_x.abs()
-                } else {
-                    diff_y.abs()
-                };
-                rope[j].0 += (rope[j - 1].0 - rope[j].0).signum()*min_abs;
-                rope[j].1 += (rope[j - 1].1 - rope[j].1).signum()*min_abs;
-
-                if (rope[j - 1].0 - rope[j].0).abs() > 1 || (rope[j - 1].1 - rope[j].1).abs() > 1 { // One of the two is 0 now
-                    rope[j].0 += (rope[j - 1].0 - rope[j].0)-(rope[j - 1].0 - rope[j].0).signum();
-                    rope[j].1 += (rope[j - 1].1 - rope[j].1)-(rope[j - 1].1 - rope[j].1).signum();
+            for j in 1..10 {
+                if (rope[j-1].0 - rope[j].0).abs() > 1 || (rope[j-1].1 - rope[j].1).abs() > 1 {
+                    rope[j].0 += (rope[j-1].0 - rope[j].0).signum();
+                    rope[j].1 += (rope[j-1].1 - rope[j].1).signum();
                 }
             }
+            positions.insert(rope[9]);
+
         }
-
-        let mut start_x = prev_tail.0;
-        let mut end_x = rope[9].0;
-        if start_x > end_x {
-            std::mem::swap(&mut start_x, &mut end_x);
-        }
-        let range_x = (start_x..=end_x).skip(1);
-
-        let mut start_y = prev_tail.1;
-        let mut end_y = rope[9].1;
-        if start_y > end_y {
-            std::mem::swap(&mut start_y, &mut end_y);
-        }
-        let range_y = (start_y..=end_y).skip(1);
-
-        let x_size = range_x.size_hint().0;
-        let y_size = range_y.size_hint().0;
-        let max_size = x_size.max(y_size);
-        println!("{}", max_size);
-        let range_x = range_x.chain(std::iter::repeat(rope[9].0).take(max_size-x_size));
-        let range_y = range_y.chain(std::iter::repeat(rope[9].1).take(max_size-y_size));
-
-        println!("{:?} -> {:?}", prev_tail, rope[9]);
-        for (x, y) in range_x.zip(range_y) {
-            positions.insert((x, y));
-            println!("{}, {}", x, y);
-        }
-
-        println!("{:?}, {} {}", rope, i.char(), count);
     }
-
-    println!("{:?}", positions);
     positions.len()
 }
 

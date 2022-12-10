@@ -1,6 +1,11 @@
 use std::fmt::Debug;
 use std::str::FromStr;
 
+pub const BLOCK_CHAR : char = '█';
+pub const EMPTY_CHAR : char = ' ';
+pub const BLOCK_STR : &str = "█";
+pub const EMPTY_STR : &str = " ";
+
 pub fn ints<T>(data: Vec<&str>) -> Vec<T>
     where T: FromStr,
           T::Err: Debug {

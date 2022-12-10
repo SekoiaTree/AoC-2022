@@ -1,4 +1,5 @@
 use std::time::Instant;
+use aoc_util::{BLOCK_CHAR, EMPTY_CHAR};
 
 #[derive(Copy, Clone, Debug)]
 pub enum Instruction {
@@ -51,9 +52,9 @@ impl Computer {
             let timing = self.instruction_timing();
             for i in 0..timing {
                 if self.x + 1 >= 0 && ((cycle_count + i - 1).rem_euclid(40) + 1).abs_diff((self.x + 1) as usize) <= 1 {
-                    print!("█");
+                    print!("{}", BLOCK_CHAR);
                 } else {
-                    print!(" ");
+                    print!("{}", EMPTY_CHAR);
                 }
                 if (cycle_count + i) % 40 == 0 {
                     println!();
