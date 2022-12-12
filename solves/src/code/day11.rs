@@ -162,7 +162,7 @@ impl Monkey {
             }
         }
         self.activity += self.items.len();
-        self.items = vec![];
+        self.items.clear();
     }
 
     pub fn throw_items_step_2(&mut self, monkeys_before: &mut [Monkey], monkeys_after: &mut [Monkey], my_index: usize, modulus: u64) {
@@ -175,7 +175,7 @@ impl Monkey {
             }
         }
         self.activity += self.items.len();
-        self.items = vec![];
+        self.items.clear();
     }
 }
 
