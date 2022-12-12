@@ -7,11 +7,11 @@ type Data = (Vec<Vec<u32>>, (usize, usize), (usize, usize));
 
 pub fn run(data: Data) -> u32 {
     let (map, start, end) = data;
-    let mut queue = PriorityQueue::new();
+    let mut queue = VecDeque::new();
     let mut visited_set = HashSet::new();
-    queue.push((start, 0), Reverse(0));
+    queue.push_back((start, 0));
     while queue.len() > 0 {
-        let (((i, j), len), _priority) = queue.pop().unwrap();
+        let ((i, j), len) = queue.pop_front().unwrap();
         if !visited_set.insert((i, j)) {
             continue;
         }
@@ -21,19 +21,19 @@ pub fn run(data: Data) -> u32 {
         }
 
         if i > 0 && map[i-1][j] <= map[i][j]+1 && !visited_set.contains(&(i-1, j)) {
-            queue.push(((i-1, j), len+1), Reverse(len as usize+1+end.0.abs_diff(i-1)+end.1.abs_diff(j)));
+            queue.push_back(((i-1, j), len+1));
         }
 
         if i < map.len()-1 && map[i+1][j] <= map[i][j]+1 && !visited_set.contains(&(i+1, j)) {
-            queue.push(((i+1, j), len+1), Reverse(len as usize+1+end.0.abs_diff(i+1)+end.1.abs_diff(j)));
+            queue.push_back(((i+1, j), len+1));
         }
 
         if j > 0 && map[i][j-1] <= map[i][j]+1 && !visited_set.contains(&(i, j-1)) {
-            queue.push(((i, j-1), len+1), Reverse(len as usize+1+end.0.abs_diff(i)+end.1.abs_diff(j-1)));
+            queue.push_back(((i, j-1), len+1));
         }
 
         if j < map[i].len()-1 && map[i][j+1] <= map[i][j]+1 && !visited_set.contains(&(i, j+1)) {
-            queue.push(((i, j+1), len+1), Reverse(len as usize+1+end.0.abs_diff(i)+end.1.abs_diff(j+1)));
+            queue.push_back(((i, j+1), len+1));
         }
     }
     panic!("No solution found!")
