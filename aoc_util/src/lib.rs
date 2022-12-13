@@ -1,3 +1,4 @@
+use std::cmp::Ordering;
 use std::fmt::Debug;
 use std::str::FromStr;
 
@@ -34,7 +35,7 @@ pub fn parse_in_grid_bytes<T, F>(data: Vec<&[u8]>, parse: F) -> Vec<Vec<T>>
     data.iter().map(|x| x.iter().map(parse).collect()).collect()
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub enum Tree<T, S=()> {
     Node(Vec<Tree<T>>, S),
     Leaf(T)
@@ -57,6 +58,45 @@ impl<T, S> Tree<T, S> {
     }
 }
 
+impl<T> PartialOrd for Tree<T, ()>
+    where T: PartialOrd + Clone {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        match self {
+            Tree::Node(x, _) => {
+                match other {
+                    Tree::Node(v, _) => x.partial_cmp(v),
+                    Tree::Leaf(_) => x.partial_cmp(&vec![other.clone()])
+                }
+            }
+            Tree::Leaf(v) => {
+                match other {
+                    Tree::Node(x, _) => vec![self.clone()].partial_cmp(x),
+                    Tree::Leaf(x) => v.partial_cmp(x)
+                }
+            }
+        }
+    }
+}
+
+impl<T> Ord for Tree<T, ()>
+    where T: Ord + Clone {
+    fn cmp(&self, other: &Self) -> Ordering {
+        match self {
+            Tree::Node(x, _) => {
+                match other {
+                    Tree::Node(v, _) => x.cmp(v),
+                    Tree::Leaf(v) => x.cmp(&vec![Tree::Leaf(v.clone())])
+                }
+            }
+            Tree::Leaf(v) => {
+                match other {
+                    Tree::Node(x, _) => (vec![Tree::Leaf(v.clone())]).cmp(x),
+                    Tree::Leaf(x) => v.cmp(x)
+                }
+            }
+        }
+    }
+}
 
 /*#[derive(Clone, Debug)]
 pub struct TreeIterator<'a, T> {
