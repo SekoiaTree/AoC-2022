@@ -1,11 +1,12 @@
 use std::cmp::Ordering;
 use std::fmt::Debug;
+use std::ops::{Add, AddAssign, Neg, Sub, SubAssign};
 use std::str::FromStr;
 
-pub const BLOCK_CHAR : char = '█';
-pub const EMPTY_CHAR : char = ' ';
-pub const BLOCK_STR : &str = "█";
-pub const EMPTY_STR : &str = " ";
+pub const BLOCK_CHAR: char = '█';
+pub const EMPTY_CHAR: char = ' ';
+pub const BLOCK_STR: &str = "█";
+pub const EMPTY_STR: &str = " ";
 
 pub fn ints<T>(data: Vec<&str>) -> Vec<T>
     where T: FromStr,
@@ -35,10 +36,81 @@ pub fn parse_in_grid_bytes<T, F>(data: Vec<&[u8]>, parse: F) -> Vec<Vec<T>>
     data.iter().map(|x| x.iter().map(parse).collect()).collect()
 }
 
+#[derive(Copy, Clone, Debug, Eq, PartialEq)]
+pub struct IPoint {
+    x: i32,
+    y: i32,
+}
+
+impl IPoint {
+    pub fn new(x: i32, y: i32) -> Self {
+        IPoint { x, y }
+    }
+
+    pub fn from(v: (i32, i32)) -> Self {
+        IPoint { x: v.0, y: v.0 }
+    }
+
+    pub fn x(&self) -> i32 {
+        return self.x;
+    }
+
+    pub fn y(&self) -> i32 {
+        return self.y;
+    }
+
+    pub fn manhattan_distance(&self, rhs: Self) -> u32 {
+        self.x.abs_diff(rhs.x)+self.y.abs_diff(rhs.y)
+    }
+
+    pub fn norm(&self) -> u32 {
+        (self.x*self.x) as u32 + (self.y*self.y) as u32
+    }
+}
+
+impl Add for IPoint {
+    type Output = Self;
+
+    fn add(self, rhs: Self) -> Self::Output {
+        Self { x: self.x + rhs.x, y: self.y + rhs.y }
+    }
+}
+
+impl Sub for IPoint {
+    type Output = Self;
+
+    fn sub(self, rhs: Self) -> Self::Output {
+        Self { x: self.x - rhs.x, y: self.y - rhs.y }
+    }
+}
+
+impl AddAssign for IPoint {
+    fn add_assign(&mut self, rhs: Self) {
+        self.x += rhs.x;
+        self.y += rhs.y;
+    }
+}
+
+impl SubAssign for IPoint {
+    fn sub_assign(&mut self, rhs: Self) {
+        self.x -= rhs.x;
+        self.y -= rhs.y;
+    }
+}
+
+impl Neg for IPoint {
+    type Output = Self;
+
+    fn neg(self) -> Self::Output {
+        Self { x: -self.x, y: -self.y }
+    }
+}
+
+
 #[derive(Clone, Debug, Eq, PartialEq)]
-pub enum Tree<T, S=()> {
+pub enum Tree<T, S = ()> {
     Node(Vec<Tree<T>>, S),
-    Leaf(T)
+    Leaf(T),
 }
 
 impl<T, S> Tree<T, S> {
