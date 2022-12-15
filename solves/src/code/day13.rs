@@ -53,6 +53,6 @@ pub fn convert(data: ConvertData, _profiling: Instant) -> Data {
     }).collect()
 }
 
-pub fn free_convert<'a>(data: Vec<&'a str>) -> ConvertData<'a> {
+pub fn free_convert(data: Vec<&str>) -> ConvertData {
     data
 }
