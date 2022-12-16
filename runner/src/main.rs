@@ -14,7 +14,7 @@ pub fn main() {
         let processed_2 = processed.clone();
 
     let processing_time = profiling.elapsed();
-    println!("Processing data complete... Time taken: {} microseconds or {} ms. \n", processing_time.as_micros(), processing_time.as_millis());
+    println!("Processing data complete... Time taken: {} microseconds or {} ms.\n", processing_time.as_micros(), processing_time.as_millis());
     let result = day::run(processed);
     let time_taken_p1 = profiling.elapsed() - processing_time;
     println!("Result of part 1: {:?}. This took: {} microseconds or {} ms.", result, time_taken_p1.as_micros(), time_taken_p1.as_millis());
