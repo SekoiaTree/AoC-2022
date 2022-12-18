@@ -3,5 +3,6 @@
 members = [
     "runner",
     "solves",
-    "aoc_util"
+    "aoc_util",
+    "dummy_day_lib"
 ]

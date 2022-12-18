@@ -9,6 +9,7 @@ itertools = "0.10.1"
 priority-queue = "1.3.0"
 graph = "0.3.0"
 nom = "7.1.1"
+dummy_day_lib = {path = "../dummy_day_lib"}
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [features]

@@ -51,6 +51,6 @@ pub fn convert(data: ConvertData, _profiling: Instant) -> Data {
     data.split(|x| x.is_empty()).map(|x| x.iter().map(|y| y.parse::<u32>().unwrap()).collect()).collect()
 }
 
-pub fn free_convert<'a>(data: Vec<&'a str>) -> ConvertData<'a> {
+pub fn free_convert(data: Vec<&str>) -> ConvertData {
     data
 }
