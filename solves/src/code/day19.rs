@@ -1,5 +1,3 @@
-use std::cmp::Reverse;
-use std::collections::{HashMap, HashSet};
 use std::thread;
 use std::thread::JoinHandle;
 use std::time::{Duration, Instant};
@@ -72,13 +70,27 @@ fn max_geodes(minutes: usize, ore_collector: usize, clay_collector: usize, obsid
         seen[time].push((ore, clay, obsidian, geode, ore_bots, clay_bots, obsidian_bots, geode_bots));
 
         if obsidian_bots >= 1 {
-            let extra_time = ((geode_collector.1 - obsidian)/obsidian_bots); // This needs to be like... rounded up or something. It's late man, screw this...
+            let extra_time_obsidian = if obsidian <= geode_collector.1 {
+                let v = (geode_collector.1 - obsidian)/obsidian_bots;
+                v + if (geode_collector.1 - obsidian) % obsidian_bots != 0 { 1 } else { 0 }
+            } else {
+                0
+            };
+            let extra_time_ore = if ore <= geode_collector.0 {
+                let v = (geode_collector.0 - ore)/ore_bots;
+                v + if (geode_collector.0 - ore) % ore_bots != 0 { 1 } else { 0 }
+            } else {
+                0
+            };
+            let extra_time = extra_time_obsidian.max(extra_time_ore);
             let new_ore = ore_bots * extra_time - geode_collector.0;
-            let new_obsidian
+            let new_obsidian = obsidian_bots * extra_time - geode_collector.1;
+            let new_clay = clay_bots * extra_time;
+            let new_geode = geode_bots * extra_time;
             queue.push_increase((
-                                    (new_ore - geode_collector.0, new_clay, new_obsidian - geode_collector.1, new_geode),
+                                    (new_ore, new_clay, new_obsidian, new_geode),
                                     ore_bots, clay_bots, obsidian_bots, geode_bots + 1
-                                ), (time + 1, new_geode, new_obsidian - geode_collector.1, new_clay, new_ore - geode_collector.0));
+                                ), (time + extra_time, new_geode, new_obsidian, new_clay, new_ore));
         }
 
         if clay_bots >= 1 {
