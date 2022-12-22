@@ -1,6 +1,6 @@
 use std::cmp::Ordering;
 use std::fmt::Debug;
-use std::ops::{Add, AddAssign, Neg, Sub, SubAssign};
+use std::ops::{Add, AddAssign, Mul, Neg, Sub, SubAssign};
 use std::str::FromStr;
 
 pub const BLOCK_CHAR: char = '█';
@@ -106,6 +106,13 @@ impl Neg for IPoint {
     }
 }
 
+impl Mul<i32> for IPoint {
+    type Output = Self;
+
+    fn mul(self, rhs: i32) -> Self::Output {
+        Self { x: self.x*rhs, y: self.y*rhs }
+    }
+}
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub enum Tree<T, S = ()> {

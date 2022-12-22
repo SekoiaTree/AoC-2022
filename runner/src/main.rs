@@ -6,7 +6,7 @@ use solves::DAY;
 pub fn main() {
     println!("Today is day #{}. Beginning program...", DAY);
 
-    let contents = day::free_convert(INPUT.trim().lines().collect());
+    let contents = day::free_convert(INPUT.trim_end().lines().collect());
 
     let profiling = Instant::now();
     let processed = day::convert(contents, profiling);
