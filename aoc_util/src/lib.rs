@@ -1,6 +1,6 @@
 use std::cmp::Ordering;
 use std::fmt::Debug;
-use std::ops::{Add, AddAssign, Mul, Neg, Sub, SubAssign};
+use std::ops::{Add, AddAssign, Mul, Neg, RangeInclusive, Sub, SubAssign};
 use std::str::FromStr;
 
 pub const BLOCK_CHAR: char = '█';
@@ -36,35 +36,73 @@ pub fn parse_in_grid_bytes<T, F>(data: Vec<&[u8]>, parse: F) -> Vec<Vec<T>>
     data.iter().map(|x| x.iter().map(parse).collect()).collect()
 }
 
-#[derive(Copy, Clone, Debug, Eq, PartialEq)]
+pub fn small_to_big_range<T: PartialOrd>(from: T, to: T) -> RangeInclusive<T> {
+    if from < to {
+        from..=to
+    } else {
+        to..=from
+    }
+}
+
+#[derive(Copy, Clone, Debug, Eq, PartialEq, Hash)]
 pub struct IPoint {
     x: i32,
     y: i32,
 }
 
+
 impl IPoint {
-    pub fn new(x: i32, y: i32) -> Self {
+    pub const NORTH : IPoint = IPoint::new(0, -1);
+    pub const SOUTH : IPoint = IPoint::new(0, 1);
+    pub const WEST : IPoint = IPoint::new(-1, 0);
+    pub const EAST : IPoint = IPoint::new(1, 0);
+
+    pub const fn new(x: i32, y: i32) -> Self {
         IPoint { x, y }
     }
 
-    pub fn from(v: (i32, i32)) -> Self {
+    pub const fn from(v: (i32, i32)) -> Self {
         IPoint { x: v.0, y: v.0 }
     }
 
-    pub fn x(&self) -> i32 {
+    pub const fn x(&self) -> i32 {
         return self.x;
     }
 
-    pub fn y(&self) -> i32 {
+    pub const fn y(&self) -> i32 {
         return self.y;
     }
 
-    pub fn manhattan_distance(&self, rhs: Self) -> u32 {
+    pub const fn manhattan_distance(&self, rhs: Self) -> u32 {
         self.x.abs_diff(rhs.x)+self.y.abs_diff(rhs.y)
     }
 
-    pub fn norm(&self) -> u32 {
+    pub const fn norm_squared(&self) -> u32 {
         (self.x*self.x) as u32 + (self.y*self.y) as u32
+    }
+
+    pub fn neighbours(&self) -> Vec<IPoint> {
+        vec![IPoint::new(self.x+1, self.y), IPoint::new(self.x, self.y+1), IPoint::new(self.x-1, self.y), IPoint::new(self.x, self.y-1)]
+    }
+
+    pub fn neighbours_8(&self) -> Vec<IPoint> {
+        vec![IPoint::new(self.x+1, self.y), IPoint::new(self.x, self.y+1), IPoint::new(self.x-1, self.y), IPoint::new(self.x, self.y-1), IPoint::new(self.x+1, self.y+1), IPoint::new(self.x-1, self.y+1), IPoint::new(self.x-1, self.y-1), IPoint::new(self.x+1, self.y-1)]
+    }
+
+    pub fn north(&self) -> IPoint {
+        *self + IPoint::NORTH
+    }
+
+    pub fn south(&self) -> IPoint {
+        *self + IPoint::SOUTH
+    }
+
+    pub fn west(&self) -> IPoint {
+        *self + IPoint::WEST
+    }
+
+    pub fn east(&self) -> IPoint {
+        *self + IPoint::EAST
     }
 }
 
