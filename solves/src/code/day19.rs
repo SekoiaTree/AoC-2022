@@ -94,6 +94,7 @@ fn max_geodes(minutes: usize, ore_collector: usize, clay_collector: usize, obsid
 
         if obsidian_bots >= 1 {
             let extra_time_obsidian = div_ceil(obsidian, geode_collector.1, obsidian_bots);
+            println!("We have {} bots, {} obsidian, and it costs {} to build so it will take {} time to build this", obsidian_bots, obsidian_bots, geode_collector.1, extra_time_obsidian);
             let extra_time_ore = div_ceil(ore, geode_collector.0, ore_bots);
             let extra_time = extra_time_obsidian.max(extra_time_ore);
             let new_ore = ore + ore_bots * extra_time - geode_collector.0;
