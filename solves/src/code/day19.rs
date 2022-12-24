@@ -46,110 +46,69 @@ pub fn run(data: Data) -> usize {
     sum
 }
 
+fn div_ceil(a: usize, b: usize) -> usize {
+    (a + b - 1) / b
+}
+
 fn max_geodes(minutes: usize, ore_collector: usize, clay_collector: usize, obsidian_collector: (usize, usize), geode_collector: (usize, usize)) -> usize {
     let mut queue = PriorityQueue::new();
-
-    let max_ore_bots = ore_collector.max(clay_collector.max(obsidian_collector.0.max(geode_collector.0)));
+    let max_ore_bots = ore_collector.max(clay_collector).max(obsidian_collector.0).max(geode_collector.0);
     let max_clay_bots = obsidian_collector.1;
     let max_obsidian_bots = geode_collector.1;
-    // let mut seen = vec![Vec::new(); minutes + 1];
-    queue.push(((0, 0, 0, 0), 1, 0, 0, 0), (0, 0, 0, 0, 0));
+
+    queue.push((1, 0, 0, 0, 0, 0, 0), 0);
 
     let mut max = 0;
-    while !queue.is_empty() {
-        let ((_, ore_bots, clay_bots, obsidian_bots, geode_bots), (time, geode, obsidian, clay, ore)) = queue.pop().unwrap();
-        //let time = time.0;
-        let time_to_end = minutes-time;
-        let max_geodes = if time_to_end > 0 { geode+time_to_end*geode_bots+(time_to_end-1)*time_to_end/2 } else { 0 };
-        if max_geodes <= max {
-            continue;
-        }
-
-        let geodes_never_build = geode+geode_bots*time_to_end;
-        if geodes_never_build > max {
-            println!("At time {} we have {} bots so at least {} geodes at the end (we already have {})", time, geode_bots, geodes_never_build, geode);
-            max = geodes_never_build;
-        }
-
-        // if seen[time].iter().any(|(o, c, ob, g, o_b, c_b, ob_b, g_b)| {
-        //     *o >= ore && *c >= clay && *ob >= obsidian && *g >= geode &&
-        //         *o_b >= ore_bots && *c_b >= clay_bots && *ob_b >= obsidian_bots && *g_b >= geode_bots
-        // }) {
-        //     continue;
-        // }
+    while let Some(((ore_bots, clay_bots, obsidian_bots, ore, clay, obsidian, geode), time)) = queue.pop() {
         if time == minutes {
-            max = max.max(geode);
+            if geode > max {
+                max = geode;
+            }
             continue;
         }
-        // seen[time].push((ore, clay, obsidian, geode, ore_bots, clay_bots, obsidian_bots, geode_bots));
 
-        fn div_ceil(a: usize, b: usize, bots: usize) -> usize {
-            if a <= b {
-                let v = (b-a)/bots;
-                v + if (b - a) % bots != 0 { 1 } else { 0 }
-            } else {
-                0
-            }
-        }
-
-        if obsidian_bots >= 1 {
-            let extra_time_obsidian = div_ceil(obsidian, geode_collector.1, obsidian_bots);
-            println!("We have {} bots, {} obsidian, and it costs {} to build so it will take {} time to build this", obsidian_bots, obsidian_bots, geode_collector.1, extra_time_obsidian);
-            let extra_time_ore = div_ceil(ore, geode_collector.0, ore_bots);
-            let extra_time = extra_time_obsidian.max(extra_time_ore);
-            let new_ore = ore + ore_bots * extra_time - geode_collector.0;
-            let new_obsidian = obsidian + obsidian_bots * extra_time - geode_collector.1;
-            let new_clay = clay + clay_bots * extra_time;
-            let new_geode = geode + geode_bots * extra_time;
-            if time + extra_time <= minutes {
-                queue.push_increase((
-                                        (new_ore, new_clay, new_obsidian, new_geode),
-                                        ore_bots, clay_bots, obsidian_bots, geode_bots + 1
-                                    ), (time + extra_time, new_geode, new_obsidian, new_clay, new_ore));
-            }
-        }
-
-        if clay_bots >= 1 && obsidian_bots < max_obsidian_bots {
-            let extra_time_clay = div_ceil(clay, obsidian_collector.1, clay_bots);
-            let extra_time_ore = div_ceil(ore, obsidian_collector.0, ore_bots);
-            let extra_time = extra_time_clay.max(extra_time_ore);
-            let new_ore = ore + ore_bots * extra_time - obsidian_collector.0;
-            let new_obsidian = obsidian + obsidian_bots * extra_time;
-            let new_clay = clay + clay_bots * extra_time - obsidian_collector.1;
-            let new_geode = geode + geode_bots * extra_time;
-            if time + extra_time <= minutes {
-                queue.push_increase((
-                                        (new_ore, new_clay, new_obsidian, new_geode),
-                                        ore_bots, clay_bots, obsidian_bots + 1, geode_bots
-                                    ), (time + extra_time, new_geode, new_obsidian, new_clay, new_ore));
+        if ore_bots < max_ore_bots {
+            let needed_ore = ore_collector.saturating_sub(ore);
+            let added_time = div_ceil(needed_ore, ore_bots) + 1;
+            let new_time = time + added_time;
+            if new_time <= minutes {
+                queue.push_increase((ore_bots + 1, clay_bots, obsidian_bots,
+                            ore + added_time * ore_bots - ore_collector, clay + added_time * clay_bots, obsidian + added_time * obsidian_bots, geode), new_time);
             }
         }
 
         if clay_bots < max_clay_bots {
-            let extra_time = div_ceil(ore, clay_collector, ore_bots);
-            let new_ore = ore + ore_bots * extra_time - clay_collector;
-            let new_obsidian = obsidian + obsidian_bots * extra_time;
-            let new_clay = clay + clay_bots * extra_time;
-            let new_geode = geode + geode_bots * extra_time;
-            if time + extra_time <= minutes {
-                queue.push_increase((
-                                        (new_ore, new_clay, new_obsidian, new_geode),
-                                        ore_bots, clay_bots + 1, obsidian_bots, geode_bots
-                                    ), (time + extra_time, new_geode, new_obsidian, new_clay, new_ore));
+            let needed_ore = clay_collector.saturating_sub(ore);
+            let added_time = div_ceil(needed_ore, ore_bots) + 1;
+            let new_time = time + added_time;
+            if new_time <= minutes {
+                queue.push_increase((ore_bots, clay_bots + 1, obsidian_bots,
+                            ore + added_time * ore_bots - clay_collector, clay + added_time * clay_bots, obsidian + added_time * obsidian_bots, geode), new_time);
             }
         }
 
-        if ore_bots < max_ore_bots {
-            let extra_time = div_ceil(ore, ore_collector, ore_bots);
-            let new_ore = ore + ore_bots * extra_time - ore_collector;
-            let new_obsidian = obsidian + obsidian_bots * extra_time;
-            let new_clay = clay + clay_bots * extra_time ;
-            let new_geode = geode + geode_bots * extra_time;
-            if time + extra_time <= minutes {
-                queue.push_increase((
-                                        (new_ore, new_clay, new_obsidian, new_geode),
-                                        ore_bots + 1, clay_bots, obsidian_bots, geode_bots
-                                    ), (time + extra_time, new_geode, new_obsidian, new_clay, new_ore));
+        if obsidian_bots < max_obsidian_bots && clay_bots > 0 {
+            let needed_ore = obsidian_collector.0.saturating_sub(ore);
+            let needed_clay = obsidian_collector.1.saturating_sub(clay);
+            let added_time = div_ceil(needed_ore, ore_bots).max(div_ceil(needed_clay, clay_bots)) + 1;
+            let new_time = time + added_time;
+            if new_time <= minutes {
+                queue.push((ore_bots, clay_bots, obsidian_bots + 1,
+                            ore + added_time * ore_bots - obsidian_collector.0, clay + added_time * clay_bots - obsidian_collector.1,
+                            obsidian + added_time * obsidian_bots, geode), new_time);
+            }
+        }
+
+        if obsidian_bots > 0 {
+            let needed_ore = geode_collector.0.saturating_sub(ore);
+            let needed_obsidian = geode_collector.1.saturating_sub(obsidian);
+
+            let added_time = div_ceil(needed_ore, ore_bots).max(div_ceil(needed_obsidian, obsidian_bots)) + 1;
+            let new_time = time + added_time;
+            if new_time <= minutes {
+                queue.push((ore_bots, clay_bots, obsidian_bots,
+                            ore + added_time * ore_bots - geode_collector.0, clay + added_time * clay_bots, obsidian + added_time * obsidian_bots - geode_collector.1,
+                            geode + (minutes-new_time)), new_time);
             }
         }
     }
@@ -177,7 +136,7 @@ pub fn run_step2(data: Data) -> usize {
                     let (ore, clay, obsidian, geode) = data[next];
                     println!("Running {}", next + 1);
                     threads[i] = Some(thread::spawn(move || {
-                        let ret = max_geodes(33, ore, clay, obsidian, geode);
+                        let ret = max_geodes(32, ore, clay, obsidian, geode);
                         println!("{}: {}", next + 1, ret);
                         ret
                     }));
